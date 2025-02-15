@@ -1,0 +1,6 @@
+<h1>Queues</h1>
+<ul>
+    {% for queue in queues %}
+        <li><a href="{% url 'slot_list' queue.id %}">{{ queue.name }}</a></li>
+    {% endfor %}
+</ul>
