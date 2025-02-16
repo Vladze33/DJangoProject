@@ -1,25 +1,26 @@
 from django.contrib import admin
 from .models import Queue, Slot, Booking, Rating
 
-admin.site.register(Queue)
-admin.site.register(Slot)
-admin.site.register(Booking)
-admin.site.register(Rating)
 
-class SlotInline(admin.TabularInline):
-    model = Slot
-    extra = 1
-
+# Регистрация модели Queue
 @admin.register(Queue)
 class QueueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'status', 'created_at')
-    list_filter = ('status',)
-    search_fields = ('name',)
-    inlines = [SlotInline]
+    list_display = ('name', 'description')
 
+
+# Регистрация модели Slot
+@admin.register(Slot)
+class SlotAdmin(admin.ModelAdmin):
+    list_display = ('queue', 'start_time', 'end_time', 'is_available')
+
+
+# Регистрация модели Booking
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    actions = ['mark_completed']
-    
-    def mark_completed(self, request, queryset):
-        queryset.update(status='completed')
+    list_display = ('slot', 'user', 'created_at', 'notified')
+
+
+# Регистрация модели Rating
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('booking', 'rating', 'comment', 'created_at')

@@ -4,10 +4,12 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from .models import Queue, Slot, Booking
 
+
 class QueueTest(TestCase):
     def test_queue_creation(self):
         queue = Queue.objects.create(name="Test", status="active")
         self.assertEqual(queue.status, "active")
+
 
 class BookingTest(TestCase):
     def setUp(self):
