@@ -1,6 +1,10 @@
 <h1>Queues</h1>
 <ul>
     {% for queue in queues %}
-        <li><a href="{% url 'slot_list' queue.id %}">{{ queue.name }}</a></li>
+        <li>
+            <a href="{% url 'slot_list' queue.id %}">{{ queue.name }}</a>
+            <span>({{ queue.status }})</span>
+            <small>Доступно слотов: {{ queue.slot_set.available.count }}</small>
+        </li>
     {% endfor %}
 </ul>
