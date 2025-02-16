@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Регистрация</h2>
+<form method="post" action="{% url 'account_signup' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Зарегистрироваться</button>
+</form>
+<p>Уже есть аккаунт? <a href="{% url 'account_login' %}">Войдите</a>.</p>
+{% endblock %}
+
+{% if form.errors %}
+  <div class="alert alert-danger">
+    {% for field, errors in form.errors.items %}
+      {% for error in errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+  </div>
+{% endif %}
