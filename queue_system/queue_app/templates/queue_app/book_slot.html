@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Запись на слот: {{ slot.start_time }} - {{ slot.end_time }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Записаться</button>
+</form>
+<a href="{% url 'slot_list' slot.queue.id %}">Назад к списку слотов</a>
+{% endblock %}

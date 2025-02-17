@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Слоты для очереди: {{ queue.name }}</h1>
+<ul>
+    {% for slot in slots %}
+        <li>
+            {{ slot.start_time }} - {{ slot.end_time }}
+            <a href="{% url 'book_slot' slot.id %}">Записаться</a>
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'queue_list' %}">Назад к списку очередей</a>
+{% endblock %}
