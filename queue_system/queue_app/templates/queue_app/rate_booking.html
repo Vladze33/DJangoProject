@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Оценить запись</h1>
+
+    <p>Вы записывались на: {{ booking.slot.queue.name }} - {{ booking.slot.start_time }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить оценку</button>
+        <a href="{% url 'user_bookings' %}">Отмена</a>
+    </form>
+{% endblock %}
