@@ -14,6 +14,10 @@ class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
         fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(choices=Rating.rating.field.choices),
+            'comment': forms.Textarea(attrs={'rows': 3}),
+        }
 
 
 class RegisterForm(UserCreationForm):

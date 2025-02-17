@@ -19,7 +19,7 @@
         </li>
     {% endfor %}
 </ul>
-
+<a href="{% url 'user_bookings' %}">Мои записи</a>
 <!-- Дополнительные данные для аутентифицированных пользователей -->
 {% if user.is_authenticated and user_queues %}
     <h2>Ваши очереди</h2>

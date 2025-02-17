@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block content %}
+    <h1>Мои записи</h1>
+
+    {% if bookings %}
+        <ul>
+            {% for booking in bookings %}
+                <li>
+                    {{ booking.slot.queue.name }} - {{ booking.slot.start_time }} - {{ booking.slot.end_time }}
+                    {% now "Y-m-d H:i:s" as current_time %}
+                    {% if booking.slot.can_rate %}
+                        <a href="{% url 'rate_booking' booking.id %}">Оценить</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>У вас нет записей.</p>
+    {% endif %}
+{% endblock %}
