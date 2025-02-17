@@ -141,12 +141,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Настройки электронной почты
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your_email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your_password'
-DEFAULT_FROM_EMAIL = 'your_email@gmail.com'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'Queue.Project@mail.ru'
+EMAIL_HOST_PASSWORD = 'nV25GqczR13KvdBDU2Bj'
+DEFAULT_FROM_EMAIL = 'Queue.Project@mail.ru'
 
 DEFAULT_CHARSET = 'utf-8'
 FILE_CHARSET = 'utf-8'
