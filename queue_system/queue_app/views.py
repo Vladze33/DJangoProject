@@ -6,6 +6,8 @@ from .models import Queue, Slot, Booking, Rating
 from .forms import BookingForm, RatingForm, RegisterForm
 from django.contrib.auth import login
 from django.contrib import messages
+from django.utils import timezone
+
 
 
 def queue_list(request):
@@ -48,17 +50,35 @@ def book_slot(request, slot_id):
 
 
 @login_required
+def user_bookings(request):
+    bookings = Booking.objects.filter(user=request.user)
+    now = timezone.localtime(timezone.now())
+    for booking in bookings:
+        end_time = timezone.localtime(booking.slot.end_time)
+        booking.slot.can_rate = end_time < now
+    return render(request, 'queue_app/user_bookings.html', {'bookings': bookings, 'now': now})
+
+
+@login_required
 def rate_booking(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+
+    try:
+        rating = Rating.objects.get(booking=booking, user=request.user)
+    except Rating.DoesNotExist:
+        rating = None
+
     if request.method == 'POST':
-        form = RatingForm(request.POST)
+        form = RatingForm(request.POST, instance=rating)
         if form.is_valid():
             rating = form.save(commit=False)
             rating.booking = booking
+            rating.user = request.user
             rating.save()
-            return redirect('queue_list')
+            return redirect('user_bookings')
     else:
-        form = RatingForm()
+        form = RatingForm(instance=rating)
+
     return render(request, 'queue_app/rate_booking.html', {'form': form, 'booking': booking})
 
 

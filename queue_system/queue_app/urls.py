@@ -9,4 +9,6 @@ urlpatterns = [
     path('queue/<str:queue_name>/', views.slot_list, name='slot_list'),
     path('queue/<str:queue_name>/<str:start_time>/', views.slot_detail, name='slot_detail'),
     path('queue/<str:queue_name>/<str:start_time>/call_next/', views.call_next_user, name='call_next_user'),
+    path('my-bookings/', views.user_bookings, name='user_bookings'),
+    path('rate-booking/<int:booking_id>/', views.rate_booking, name='rate_booking'),
 ]

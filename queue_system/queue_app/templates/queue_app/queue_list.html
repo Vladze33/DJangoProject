@@ -31,14 +31,22 @@
             {% endfor %}
         </ul>
 
-        {% if user.is_authenticated and user_queues %}
-            <h2 class="text-xl font-semibold text-gray-800 mt-6">Ваши очереди</h2>
-            <ul class="mt-2 border rounded-lg bg-gray-50 p-4">
-                {% for queue in user_queues %}
-                    <li class="py-2 border-b last:border-none text-gray-700">{{ queue.name }} - {{ queue.description }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-</body>
-</html>
+<ul>
+    {% for queue in queues %}
+        <li>
+            <a href="{% url 'slot_list' queue.id %}">{{ queue.name }}</a>
+            <span>({{ queue.status }})</span>
+            <small>Доступно слотов: {{ queue.slot_set.available.count }}</small>
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'user_bookings' %}">Мои записи</a>
+<!-- Дополнительные данные для аутентифицированных пользователей -->
+{% if user.is_authenticated and user_queues %}
+    <h2>Ваши очереди</h2>
+    <ul>
+        {% for queue in user_queues %}
+            <li>{{ queue.name }} - {{ queue.description }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
