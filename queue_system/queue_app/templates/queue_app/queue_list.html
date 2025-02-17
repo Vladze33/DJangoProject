@@ -1,52 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queues</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-800">Queues</h1>
-        
-        <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-            {% if user.is_authenticated %}
-                <p class="text-gray-700">Вы вошли как: <strong>{{ user.username }}</strong></p>
-                <a href="{% url 'account_logout' %}" class="text-red-500 hover:underline">Выйти</a>
-            {% else %}
-                <p class="text-gray-700">Вы не авторизованы.</p>
-                <a href="{% url 'account_login' %}" class="text-blue-500 hover:underline">Войти</a> |
-                <a href="{% url 'account_signup' %}" class="text-green-500 hover:underline">Зарегистрироваться</a>
-            {% endif %}
+<body class="bg-gradient-to-r from-blue-100 to-purple-100 min-h-screen">
+    <!-- Шапка -->
+    <header class="bg-white shadow">
+        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-800">Queues</h1>
+            <nav>
+                {% if user.is_authenticated %}
+                    <span class="text-gray-600 mr-4">Привет, {{ user.username }}</span>
+                    <a href="{% url 'account_logout' %}" class="text-red-500 hover:underline">Выйти</a>
+                {% else %}
+                    <a href="{% url 'account_login' %}" class="text-blue-500 hover:underline mr-4">Войти</a>
+                    <a href="{% url 'account_signup' %}" class="text-green-500 hover:underline">Зарегистрироваться</a>
+                {% endif %}
+            </nav>
         </div>
+    </header>
 
-        <ul class="mt-4 border rounded-lg bg-gray-50 p-4">
-            {% for queue in queues %}
-                <li class="py-2 border-b last:border-none flex justify-between">
-                    <a href="{% url 'slot_list' queue.id %}" class="text-blue-600 font-semibold hover:underline">{{ queue.name }}</a>
-                    <span class="text-gray-500">({{ queue.status }})</span>
-                    <small class="text-gray-600">Доступно слотов: {{ queue.slot_set.available.count }}</small>
-                </li>
-            {% endfor %}
-        </ul>
+    <!-- Основной контент -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Секция доступных очередей -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Доступные очереди</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for queue in queues %}
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-bold text-gray-700">
+                        <a href="{% url 'slot_list' queue.id %}" class="hover:text-blue-500">{{ queue.name }}</a>
+                    </h3>
+                    <p class="text-gray-500 mt-2">Статус: <span class="font-semibold">{{ queue.status }}</span></p>
+                    <p class="text-gray-500">Доступно слотов: <span class="font-semibold">{{ queue.slot_set.available.count }}</span></p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
 
-<ul>
-    {% for queue in queues %}
-        <li>
-            <a href="{% url 'slot_list' queue.id %}">{{ queue.name }}</a>
-            <span>({{ queue.status }})</span>
-            <small>Доступно слотов: {{ queue.slot_set.available.count }}</small>
-        </li>
-    {% endfor %}
-</ul>
-<a href="{% url 'user_bookings' %}">Мои записи</a>
-<!-- Дополнительные данные для аутентифицированных пользователей -->
-{% if user.is_authenticated and user_queues %}
-    <h2>Ваши очереди</h2>
-    <ul>
-        {% for queue in user_queues %}
-            <li>{{ queue.name }} - {{ queue.description }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+        <!-- Ссылка на "Мои записи" -->
+        <section class="mb-8">
+            <a href="{% url 'user_bookings' %}" class="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600">Мои записи</a>
+        </section>
+
+        <!-- Секция "Ваши очереди" для аутентифицированных пользователей -->
+        {% if user.is_authenticated and user_queues %}
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ваши очереди</h2>
+            <div class="space-y-4">
+                {% for queue in user_queues %}
+                <div class="p-4 bg-white shadow rounded-lg">
+                    <h3 class="text-xl font-bold text-gray-700">{{ queue.name }}</h3>
+                    <p class="text-gray-600">{{ queue.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <!-- Футер -->
+    <footer class="bg-white shadow mt-8">
+        <div class="container mx-auto px-4 py-4 text-center text-gray-600">
+            &copy; {{ now.year }} Queue System. Все права защищены.
+        </div>
+    </footer>
+</body>
+</html>
