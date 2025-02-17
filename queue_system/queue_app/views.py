@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Queue, Slot, Booking, Rating
-from .forms import BookingForm, RatingForm
+from .forms import BookingForm, RatingForm, RegisterForm
+from django.contrib.auth import login
 
 
 def queue_list(request):
@@ -55,3 +56,15 @@ def rate_booking(request, booking_id):
     else:
         form = RatingForm()
     return render(request, 'queue_app/rate_booking.html', {'form': form, 'booking': booking})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('queue_list')  # Перенаправление после регистрации
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
