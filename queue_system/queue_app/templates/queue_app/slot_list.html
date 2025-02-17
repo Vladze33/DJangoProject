@@ -7,6 +7,9 @@
         <li>
             {{ slot.start_time }} - {{ slot.end_time }}
             <a href="{% url 'book_slot' slot.id %}">Записаться</a>
+            {% if slot.booking_set.exists %}
+            <a href="{% url 'slot_detail' slot.queue.name slot.start_time %}">Подробнее</a>
+        {% endif %}
         </li>
     {% endfor %}
 </ul>

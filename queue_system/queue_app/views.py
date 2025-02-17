@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Queue, Slot, Booking, Rating
 from .forms import BookingForm, RatingForm, RegisterForm
 from django.contrib.auth import login
+from django.contrib import messages
 
 
 def queue_list(request):
@@ -15,7 +16,10 @@ def queue_list(request):
 @login_required
 def slot_list(request, queue_id):
     queue = get_object_or_404(Queue, id=queue_id)
-    slots = Slot.objects.filter(queue=queue, is_available=True)
+    if is_admin(request.user):  # Проверяем, является ли пользователь администратором
+        slots = Slot.objects.filter(queue=queue)  # Администратор видит все слоты
+    else:
+        slots = Slot.objects.filter(queue=queue, is_available=True)  # Обычный пользователь видит только доступные
     return render(request, 'queue_app/slot_list.html', {'queue': queue, 'slots': slots})
 
 
@@ -68,3 +72,43 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
+
+
+def is_admin(user):
+    return user.is_staff
+
+
+@login_required
+@user_passes_test(is_admin)
+def call_next_user(request, queue_name, start_time):
+    if request.method == 'POST':
+        slot = get_object_or_404(Slot, queue__name=queue_name, start_time=start_time)
+        next_booking = Booking.objects.filter(slot=slot, notified=False).first()
+
+        if next_booking:
+            # Отправка письма
+            send_mail(
+                subject='Ваша очередь подошла',
+                message=f'Здравствуйте, {next_booking.user.username}! Ваша очередь подошла. Пожалуйста, подойдите к стойке обслуживания.',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[next_booking.user.email],
+            )
+
+            # Помечаем, что уведомление отправлено
+            next_booking.notified = True
+            next_booking.save()
+            messages.success(request, f"Пользователь {next_booking.user.username} был успешно вызван.")
+        else:
+            messages.info(request, "В очереди нет ожидающих пользователей.")
+
+    return redirect('slot_detail', queue_name=queue_name, start_time=start_time)
+
+
+@login_required
+def slot_detail(request, queue_name, start_time):
+    slot = get_object_or_404(Slot, queue__name=queue_name, start_time=start_time)
+    bookings = Booking.objects.filter(slot=slot)
+    next_booking = Booking.objects.filter(slot=slot, notified=False).first()
+    is_admin_user = is_admin(request.user)
+    context = {'slot': slot, 'bookings': bookings, 'next_booking': next_booking, 'is_admin': is_admin_user}
+    return render(request, 'queue_app/slot_detail.html', context)

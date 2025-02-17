@@ -1,5 +1,4 @@
 from django.urls import path
-from .views import slot_list, book_slot
 from . import views
 
 urlpatterns = [
@@ -7,4 +6,7 @@ urlpatterns = [
     path('queue/<int:queue_id>/', views.slot_list, name='slot_list'),
     path('book/<int:slot_id>/', views.book_slot, name='book_slot'),
     path('rate/<int:booking_id>/', views.rate_booking, name='rate_booking'),
+    path('queue/<str:queue_name>/', views.slot_list, name='slot_list'),
+    path('queue/<str:queue_name>/<str:start_time>/', views.slot_detail, name='slot_detail'),
+    path('queue/<str:queue_name>/<str:start_time>/call_next/', views.call_next_user, name='call_next_user'),
 ]
