@@ -1,47 +1,91 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Слот: {{ slot.start_time }} - {{ slot.end_time }}</h1>
-
-    <!-- Список записанных пользователей -->
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Записанные пользователи:</h2>
-    <ul class="list-group">
-        {% for booking in bookings %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>
+<div>
+    <h1>Слот: {{ slot.start_time }} - {{ slot.end_time }}</h1>
+    <h2>Записанные пользователи:</h2>
+    
+    {% if bookings %}
+        <ul class="booking-list">
+            {% for booking in bookings %}
+                <li class="booking-item">
                     <strong>{{ booking.user.username }}</strong> - {{ booking.user.email }}
-                </span>
-                <span class="badge {{ 'bg-warning' if not booking.notified else 'bg-success' }}">
-                    {% if not booking.notified %}
-                        Ожидает уведомления
-                    {% else %}
-                        Уведомление отправлено
-                    {% endif %}
-                </span>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <!-- Только для администраторов -->
-    {% if is_admin %}
-        <div class="mt-4">
-            <form method="post" action="{% url 'call_next_user' slot.queue.name slot.start_time|date:'Y-m-d H:i:s' %}">
-                {% csrf_token %}
-                {% if next_booking %}
-                    <button type="submit" class="btn btn-primary">Вызвать следующего пользователя</button>
-                {% else %}
-                    <p class="text-muted">В очереди больше нет ожидающих пользователей.</p>
-                {% endif %}
-            </form>
-        </div>
+                    <span class="status {% if not booking.notified %}pending{% else %}notified{% endif %}">
+                        {% if not booking.notified %}
+                            (Ожидает уведомления)
+                        {% else %}
+                            (Уведомление отправлено)
+                        {% endif %}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
     {% else %}
-        <p class="text-danger mt-4">Вы не имеете прав на вызов пользователей.</p>
+        <p class="empty-message">Нет записанных пользователей.</p>
     {% endif %}
-
-    <!-- Кнопка "Назад" -->
-    <div class="mt-4">
-        <a href="{% url 'queue_list' %}" class="btn btn-secondary">Назад к списку очередей</a>
-    </div>
+    
+    {% if is_admin %}
+        <form method="post" action="{% url 'call_next_user' slot.queue.name slot.start_time|date:'Y-m-d H:i:s' %}">
+            {% csrf_token %}
+            {% if next_booking %}
+                <button type="submit" class="btn-primary">Вызвать следующего пользователя</button>
+            {% else %}
+                <p class="empty-message">В очереди больше нет ожидающих пользователей.</p>
+            {% endif %}
+        </form>
+    {% else %}
+        <p class="warning">Вы не имеете прав на вызов пользователей.</p>
+    {% endif %}
+    
+    <a href="{% url 'queue_list' %}" class="btn-secondary">Назад к списку очередей</a>
 </div>
+
+<style>
+    .booking-list {
+        list-style: none;
+        padding: 0;
+    }
+    .booking-item {
+        background: #fff;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .status.pending {
+        color: #d9534f;
+    }
+    .status.notified {
+        color: #5cb85c;
+    }
+    .btn-primary, .btn-secondary {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .btn-primary {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #545b62;
+    }
+    .empty-message, .warning {
+        color: #d9534f;
+        font-weight: bold;
+    }
+</style>
 {% endblock %}
