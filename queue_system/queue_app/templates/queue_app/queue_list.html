@@ -1,72 +1,49 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Queues</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-r from-blue-100 to-purple-100 min-h-screen">
-    <!-- Шапка -->
-    <header class="bg-white shadow">
-        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-gray-800">Queues</h1>
-            <nav>
-                {% if user.is_authenticated %}
-                    <span class="text-gray-600 mr-4">Привет, {{ user.username }}</span>
-                    <a href="{% url 'account_logout' %}" class="text-red-500 hover:underline">Выйти</a>
-                {% else %}
-                    <a href="{% url 'account_login' %}" class="text-blue-500 hover:underline mr-4">Войти</a>
-                    <a href="{% url 'account_signup' %}" class="text-green-500 hover:underline">Зарегистрироваться</a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
+{% extends 'base.html' %}
 
-    <!-- Основной контент -->
-    <main class="container mx-auto px-4 py-8">
-        <!-- Секция доступных очередей -->
-        <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Доступные очереди</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {% for queue in queues %}
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-xl font-bold text-gray-700">
-                        <a href="{% url 'slot_list' queue.id %}" class="hover:text-blue-500">{{ queue.name }}</a>
-                    </h3>
-                    <p class="text-gray-500 mt-2">Статус: <span class="font-semibold">{{ queue.status }}</span></p>
-                    <p class="text-gray-500">Доступно слотов: <span class="font-semibold">{{ queue.slot_set.available.count }}</span></p>
+{% block title %}Очереди{% endblock %}
+
+{% block content %}
+
+    <!-- Заголовок страницы -->
+    <h2 class="mt-4 mb-4 text-center text-primary text-black">Список очередей</h2>
+
+    <!-- Кнопка "Мои записи" -->
+    <div class="text-center mb-4">
+        <a href="{% url 'user_bookings' %}" class="btn btn-outline-primary btn-lg">Мои записи</a>
+    </div>
+
+    <!-- Список очередей -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for queue in queues %}
+            <div class="col mb-4">
+                <div class="card shadow-lg border-light rounded">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">{{ queue.name }}</h5>
+                        
+                        <!-- Доступные слоты -->
+                        <p class="card-text">
+                            <strong>Доступно слотов:</strong> <span class="text-dark fw-bold">{{ queue.slot_set.available.count }}</span>
+                        </p>
+
+                        <!-- Кнопка перехода -->
+                        <a href="{% url 'slot_list' queue.id %}" class="btn btn-outline-primary mt-3 w-100">Перейти к слотам</a>
+                    </div>
                 </div>
-                {% endfor %}
             </div>
-        </section>
+        {% endfor %}
+    </div>
 
-        <!-- Ссылка на "Мои записи" -->
-        <section class="mb-8">
-            <a href="{% url 'user_bookings' %}" class="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600">Мои записи</a>
-        </section>
-
-        <!-- Секция "Ваши очереди" для аутентифицированных пользователей -->
-        {% if user.is_authenticated and user_queues %}
-        <section>
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ваши очереди</h2>
-            <div class="space-y-4">
-                {% for queue in user_queues %}
-                <div class="p-4 bg-white shadow rounded-lg">
-                    <h3 class="text-xl font-bold text-gray-700">{{ queue.name }}</h3>
-                    <p class="text-gray-600">{{ queue.description }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-        {% endif %}
-    </main>
-
-    <!-- Футер -->
-    <footer class="bg-white shadow mt-8">
-        <div class="container mx-auto px-4 py-4 text-center text-gray-600">
-            &copy; {{ now.year }} Queue System. Все права защищены.
-        </div>
-    </footer>
-</body>
-</html>
+    <!-- Дополнительные данные для аутентифицированных пользователей -->
+    {% if user.is_authenticated and user_queues %}
+        <h2 class="mt-4 mb-4 text-center text-primary">Ваши очереди</h2>
+        <ul class="list-group">
+            {% for queue in user_queues %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>{{ queue.name }}</strong> - {{ queue.description }}
+                    <a href="{% url 'slot_list' queue.id %}" class="btn btn-outline-success btn-sm">Просмотр</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+{% endblock %}

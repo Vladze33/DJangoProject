@@ -2,21 +2,29 @@
 {% load tz %}
 
 {% block content %}
-    <h1>Мои записи</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Мои записи</h1>
 
     {% if bookings %}
-        <ul>
+        <ul class="space-y-4">
             {% for booking in bookings %}
-                <li>
-                    {{ booking.slot.queue.name }} - {{ booking.slot.start_time }} - {{ booking.slot.end_time }}
-                    {% now "Y-m-d H:i:s" as current_time %}
+                <li class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center hover:shadow-lg transition-all">
+                    <div class="flex flex-col">
+                        <span class="text-gray-700 text-lg font-semibold">{{ booking.slot.queue.name }}</span>
+                        <span class="text-gray-600 text-sm">{{ booking.slot.start_time }} - {{ booking.slot.end_time }}</span>
+                    </div>
+
+                    <!-- Оценка записи, если доступна -->
                     {% if booking.slot.can_rate %}
-                        <a href="{% url 'rate_booking' booking.id %}">Оценить</a>
+                        <a href="{% url 'rate_booking' booking.id %}" class="bg-yellow-500 text-black px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all">
+                            Оценить
+                        </a>
                     {% endif %}
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>У вас нет записей.</p>
+        <p class="text-center text-gray-500">У вас нет записей.</p>
     {% endif %}
+</div>
 {% endblock %}

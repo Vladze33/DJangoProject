@@ -1,34 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Слот: {{ slot.start_time }} - {{ slot.end_time }}</h1>
-<h2>Записанные пользователи:</h2>
-<ul>
-    {% for booking in bookings %}
-        <li>
-            {{ booking.user.username }} - {{ booking.user.email }}
-            {% if not booking.notified %}
-                (Ожидает уведомления)
-            {% else %}
-                (Уведомление отправлено)
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Слот: {{ slot.start_time }} - {{ slot.end_time }}</h1>
 
+    <!-- Список записанных пользователей -->
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Записанные пользователи:</h2>
+    <ul class="list-group">
+        {% for booking in bookings %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>{{ booking.user.username }}</strong> - {{ booking.user.email }}
+                </span>
+                <span class="badge {{ 'bg-warning' if not booking.notified else 'bg-success' }}">
+                    {% if not booking.notified %}
+                        Ожидает уведомления
+                    {% else %}
+                        Уведомление отправлено
+                    {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
 
-{% if is_admin %}
-    <form method="post" action="{% url 'call_next_user' slot.queue.name slot.start_time|date:'Y-m-d H:i:s' %}">
-        {% csrf_token %}
-        {% if next_booking %}
-                <button type="submit">Вызвать следующего пользователя</button>
-            {% else %}
-                <p>В очереди больше нет ожидающих пользователей.</p>
-            {% endif %}
-    </form>
+    <!-- Только для администраторов -->
+    {% if is_admin %}
+        <div class="mt-4">
+            <form method="post" action="{% url 'call_next_user' slot.queue.name slot.start_time|date:'Y-m-d H:i:s' %}">
+                {% csrf_token %}
+                {% if next_booking %}
+                    <button type="submit" class="btn btn-primary">Вызвать следующего пользователя</button>
+                {% else %}
+                    <p class="text-muted">В очереди больше нет ожидающих пользователей.</p>
+                {% endif %}
+            </form>
+        </div>
     {% else %}
-        <p>Вы не имеете прав на вызов пользователей.</p>
+        <p class="text-danger mt-4">Вы не имеете прав на вызов пользователей.</p>
     {% endif %}
 
-<a href="{% url 'queue_list' %}">Назад к списку очередей</a>
+    <!-- Кнопка "Назад" -->
+    <div class="mt-4">
+        <a href="{% url 'queue_list' %}" class="btn btn-secondary">Назад к списку очередей</a>
+    </div>
+</div>
 {% endblock %}

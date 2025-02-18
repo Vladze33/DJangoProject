@@ -1,14 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Оценить запись</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Оценить запись</h1>
 
-    <p>Вы записывались на: {{ booking.slot.queue.name }} - {{ booking.slot.start_time }}</p>
+    <p class="text-lg text-gray-700 mb-4">Вы записывались на: <strong>{{ booking.slot.queue.name }} - {{ booking.slot.start_time }}</strong></p>
 
-    <form method="post">
+    <form method="post" class="bg-white p-6 rounded-lg shadow-sm">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Сохранить оценку</button>
-        <a href="{% url 'user_bookings' %}">Отмена</a>
+        <div class="form-group mb-4">
+            {{ form.as_p }}
+        </div>
+
+        <div class="flex justify-between">
+            <button type="submit" class="btn btn-primary">Сохранить оценку</button>
+            <a href="{% url 'user_bookings' %}" class="btn btn-secondary">Отмена</a>
+        </div>
     </form>
+</div>
 {% endblock %}
