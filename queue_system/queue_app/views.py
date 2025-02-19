@@ -50,9 +50,14 @@ def book_slot(request, slot_id):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             except SMTPException as e: # Catch errors related to SMTP.
-                return HttpResponse('There was an error sending an email.' + e)
-            except:
-                return HttpResponse('Mail Sending Failed!' + e)
+                return HttpResponse(
+                    f'<pre style="font-size: 20">There was an error sending an email.\n{e}</pre>'
+                )
+            except Exception as e:
+                messages.warning(request, f"Пользователю {booking.user.username} не был отправлен E-mail о записи.")
+                return HttpResponse(
+                    f'<pre style="font-size: 20">Mail Sending Failed!\n{str(e)}</pre>'
+                )
 
             return redirect('queue_list')
     else:
@@ -128,9 +133,14 @@ def call_next_user(request, queue_name, start_time):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             except SMTPException as e: # Catch errors related to SMTP.
-                return HttpResponse('There was an error sending an email.' + e)
-            except:
-                return HttpResponse('Mail Sending Failed!' + e)
+                return HttpResponse(
+                    f'<pre style="font-size: 20">There was an error sending an email.\n{e}</pre>'
+                )
+            except Exception as e:
+                messages.warning(request, f"Пользователь {next_booking.user.username} не совсем был успешно вызван.")
+                return HttpResponse(
+                    f'<pre style="font-size: 20">Mail Sending Failed!\n{str(e)}</pre>'
+                )
 
             # Помечаем, что уведомление отправлено
             next_booking.notified = True
