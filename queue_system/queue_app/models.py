@@ -1,6 +1,6 @@
-from django.db import models
+﻿from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 
 class Queue(models.Model):
     name = models.CharField(max_length=255)
@@ -19,7 +19,7 @@ class Slot(models.Model):
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.queue.name} - {self.start_time} to {self.end_time}"
+        return f"{self.queue.name} - {timezone.localtime(self.start_time)} to {timezone.localtime(self.end_time)}"
 
 
 class Booking(models.Model):
