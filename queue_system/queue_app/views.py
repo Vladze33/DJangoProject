@@ -1,6 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
+﻿from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.mail import send_mail
+from django.core.mail import BadHeaderError, send_mail
+from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from .models import Queue, Slot, Booking, Rating
 from .forms import BookingForm, RatingForm, RegisterForm
@@ -8,6 +9,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.utils import timezone
 
+from smtplib import SMTPException
 
 
 def queue_list(request):
@@ -36,13 +38,27 @@ def book_slot(request, slot_id):
             booking.save()
             slot.is_available = False
             slot.save()
-            send_mail(
-                'Booking Confirmation',
-                f'You have successfully booked a slot from {slot.start_time} to {slot.end_time}.',
-                settings.EMAIL_HOST_USER,
-                [request.user.email],
-                fail_silently=False,
-            )
+
+            try:
+                send_mail(
+                    'Booking Confirmation',
+                    f'You have successfully booked a slot from {slot.start_time} to {slot.end_time}.',
+                    settings.EMAIL_HOST_USER,
+                    [request.user.email],
+                    fail_silently=False,
+                )
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+            except SMTPException as e: # Catch errors related to SMTP.
+                return HttpResponse(
+                    f'<pre style="font-size: 20">There was an error sending an email.\n{e}</pre>'
+                )
+            except Exception as e:
+                messages.warning(request, f"Пользователю {booking.user.username} не был отправлен E-mail о записи.")
+                return HttpResponse(
+                    f'<pre style="font-size: 20">Mail Sending Failed!\n{str(e)}</pre>'
+                )
+
             return redirect('queue_list')
     else:
         form = BookingForm(initial={'slot': slot})
@@ -107,12 +123,24 @@ def call_next_user(request, queue_name, start_time):
 
         if next_booking:
             # Отправка письма
-            send_mail(
-                subject='Ваша очередь подошла',
-                message=f'Здравствуйте, {next_booking.user.username}! Ваша очередь подошла. Пожалуйста, подойдите к стойке обслуживания.',
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[next_booking.user.email],
-            )
+            try:
+                send_mail(
+                    subject='Ваша очередь подошла',
+                    message=f'Здравствуйте, {next_booking.user.username}! Ваша очередь подошла. Пожалуйста, подойдите к стойке обслуживания.',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[next_booking.user.email],
+                )
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+            except SMTPException as e: # Catch errors related to SMTP.
+                return HttpResponse(
+                    f'<pre style="font-size: 20">There was an error sending an email.\n{e}</pre>'
+                )
+            except Exception as e:
+                messages.warning(request, f"Пользователь {next_booking.user.username} не совсем был успешно вызван.")
+                return HttpResponse(
+                    f'<pre style="font-size: 20">Mail Sending Failed!\n{str(e)}</pre>'
+                )
 
             # Помечаем, что уведомление отправлено
             next_booking.notified = True
